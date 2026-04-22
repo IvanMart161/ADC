@@ -70,7 +70,6 @@ end
 
 //==============Реализация логики оцифровки аналогового сигнала==============
 logic clk_ad_prev;
-logic [DATA-1:0] clk_ad_reg;                                                                                                         // Стробирующие импульсы для АЦП
 logic [DATA-1:0] analog_in_selected;
 
 assign analog_in_selected = (CHANNEL == 1'b0) ? analog_in[0] : analog_in[1];                                                         // Выбираем канал
@@ -78,21 +77,17 @@ assign analog_in_selected = (CHANNEL == 1'b0) ? analog_in[0] : analog_in[1];    
 always_ff @(posedge clk) begin
     if(reset) begin
         clk_ad_prev <= 1'b0;
-        clk_ad_reg <= 0;
+	digital_out <= 0;
     end else begin
             clk_ad_prev <= clk_ad;
 
         if(clk_ad_prev == 1'b0 && clk_ad == 1'b1) begin
-            clk_ad_reg <= {DATA{1'b1}};                                                                                             // Стробирующий импульс для АЦП, который будет действовать в течение одного такта, что позволяет нам захватить значение аналогового сигнала в момент его изменения
-        
-        end else begin
-            clk_ad_reg <= {DATA{1'b0}};
-        
+            digital_out <= analog_in_selected * GAIN;                                                                                             // Стробирующий импульс для АЦП, который будет действовать в течение одного такта, что позволяет нам захватить значение аналогового сигнала в момент его изменения
+ 
         end
     end
     
 end
 
-assign digital_out = clk_ad_reg * analog_in_selected * GAIN;
 
 endmodule

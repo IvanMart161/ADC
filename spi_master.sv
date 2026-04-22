@@ -79,7 +79,9 @@ module spi_master #(
 
                 DONE: begin
                     CSB <= 1'b1;
-                    current_state <= IDLE;
+		    if(!start) begin	    
+                   	 current_state <= IDLE;
+		    end
                 end
 
             endcase
